@@ -1,82 +1,57 @@
-🛡️ Windows Event ID SOC Guide
+Event IDs: A SOC Analyst’s Practical Guide (Third Person)
+This repository documents Windows Security Event IDs from a SOC analyst’s perspective. How events are interpreted, why they matter, and how to triage by correlation.
 
-Tier-2 SOC Analyst Edition — A practical cheat sheet for monitoring Windows Event Logs efficiently.
+What this repository provides
 
-“In cybersecurity operations, every Event ID tells a story — understanding them enables faster detection, response, and defense.”
+A concise cheat sheet of common Windows Security Event IDs and what they signify.
 
-👀 Overview
+Practical notes and “fun facts” that SOC analysts know from field work (still suitable for onboarding and training).
 
-Windows Event Logs are critical for threat detection and incident investigation. Each Event ID provides a footprint of system activity, from routine logins to potential malicious behavior. This guide:
+A lightweight Python utility to analyze a small sample dataset of Event IDs.
 
-Highlights key Windows Event IDs relevant to SOC operations.
-Provides context on why each ID matters.
-Shares practical insights for monitoring, alerting, and investigation.
+Structure
 
-Fun fact: Stuxnet, the infamous industrial malware, was discovered in part due to unusual Windows Event Logs.
+events_ids.md: A quick reference cheat sheet for common Event IDs.
 
-⚡ Key Event ID Categories
-👤 Authentication & Logon
-Event ID	Description	SOC Insight
-4624	Successful logon	Used to monitor normal vs. suspicious logins; unusual times or sources may indicate compromise.
-4625	Failed logon	High counts often indicate brute-force attempts.
-4648	Logon with explicit credentials	Attackers may use explicit credentials to move laterally.
-4672	Special privileges assigned	Sudden admin privileges could indicate privilege escalation.
+data/sample_events.csv: A tiny, illustrative dataset for practice.
 
-SOC Tip: Correlating 4625 spikes with 4672 events often reveals ongoing attacks.
+scripts/parse_logs.py: A minimal analyzer to summarize Event IDs, logon types, and accounts.
 
-🛠 Account Management
-Event ID	Description	SOC Insight
-4720	User account created	Unexpected account creation requires immediate review.
-4722	Account enabled	Dormant accounts enabled unexpectedly may indicate malicious activity.
-4723 / 4724	Password change/reset	Could signal credential compromise.
-4726 / 4738	Account deleted/modified	May indicate insider threat or attacker activity.
-
-Fun fact: Accounts enabled outside maintenance windows frequently correspond with active attacks.
-
-🛡 Security & Audit
-Event ID	Description	SOC Insight
-1102	Audit log cleared	Indicates potential log tampering; should trigger investigation.
-4719	Audit policy changed	Malicious actors may attempt to disable security tracking.
-
-SOC Insight: A sequence of 1102 + 4720 + 4672 often signals active intrusion.
-
-⚙️ System & Persistence
-Event ID	Description	SOC Insight
-6005 / 6006 / 6008	Startup, shutdown, unexpected shutdown	Unexpected shutdowns may indicate malware activity or system instability.
-7045	New service installed	Often used by malware for persistence; must be monitored.
-
-Tip: New services installed outside maintenance windows are high-priority alerts.
-
-📂 Object Access
-Event ID	Description	SOC Insight
-4656	Handle requested	Tracks access requests to sensitive files.
-4663	Object accessed	Unusual access patterns indicate potential insider or attacker activity.
-4660	Object deleted	Often used by attackers to cover tracks.
-
-Fun fact: Object access events function like digital CCTV — every access leaves a trace.
-
-🌐 Network & Authentication
-Event ID	Description	SOC Insight
-4768 / 4769	Kerberos TGT/service ticket requests	Useful for detecting lateral movement inside domains.
-4776	NTLM authentication	Legacy protocol use may indicate attacker activity.
-
-SOC Tip: Sudden spikes in these events can indicate brute-force or Pass-the-Ticket attacks.
-
-💡 Tier-2 Insights
-Correlate events: Single Event IDs rarely reveal full attack context.
-Monitor timestamps: Activity outside normal hours is suspicious.
-Investigate anomalies quickly: Prompt analysis reduces dwell time.
-Use SIEM effectively: Combining multiple Event IDs improves detection accuracy.
-
-Fun fact: Attackers often leave obvious patterns. Context-aware monitoring enables Tier-2 analysts to detect stealthy activity before it escalates.
-
-🚀 Additional Resources
-Microsoft Windows Security Log Events
-SOC Prime Blog
-
-“Event logs are more than data points — they are actionable intelligence. Analyzing them systematically strengthens security operations and incident response.”
+LICENSE, CONTRIBUTING.md, .gitignore: project governance and hygiene.
 
 
-If you want, I can also add badges, a Table of Contents, and emojis to make it visually more attractive and GitHub-friendly.
+How to use the cheat sheet
 
-Do you want me to do that next?
+
+Analysts should map Event IDs to a hypothesis (e.g., suspicious logon activity, new service installation, or a cleared audit log).
+
+Correlate Event IDs with host, user, and time to uncover attacker techniques and pivot paths.
+
+Always verify if an Event ID is enabled by policy; a lack of events is itself a signal to confirm telemetry is running.
+
+Fun facts and insights (SOC-analyst flavor)
+
+
+Fact: The audit log being cleared (Event ID 1102) is a red flag when paired with suspicious logon bursts (4624/4625) and no legitimate maintenance window.
+
+Fact: A cluster of 4625 failures from a single IP or account often hints at credential stuffing or brute force attempts; look for 4624 successes at odd hours to confirm credential reuse.
+
+Fact: 4688 (process creation) with a rare parent process (e.g., not explorer.exe or cmd.exe) or with unusual command lines can indicate living-off-the-land techniques.
+
+Fact: 4648 (explicit credentials) paired with 4624 (logon) can signal Pass-the-Hash or Credential Dumping activity if seen at odd times or on endpoints that don’t typically require explicit creds.
+
+Fact: Special privileges (4672) on a new logon can indicate privilege escalation tracks; correlate with Process creation (4688) and Service activity (4697) for a chain of escalation.
+
+How this repo can be evolved
+
+
+Replace sample_events.csv with your own exported CSV from a SIEM or EDR tool.
+
+Extend scripts/parse_logs.py to handle EVTX->CSV exports, JSON logs, or Sysmon data.
+
+Add a small Jupyter notebook to visualize event timelines and correlations.
+
+Notes
+
+
+Event IDs vary by OS version and auditing policy. Always adapt the cheat sheet to your environment.
