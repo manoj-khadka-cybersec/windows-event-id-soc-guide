@@ -1,1 +1,7 @@
+timestamp,host,account,event_id,logon_type,details
+2026-03-28 12:00:01,host01,alice,4624,2,"Logon success: Interactive"
+2026-03-28 12:01:05,host01,bob,4625,3,"Failed logon from 10.0.0.5; retry 1"
+2026-03-28 12:02:15,host01,alice,4688,, "powershell.exe -NoLogo -ExecutionPolicy Bypass -WindowStyle Hidden"
+2026-03-28 12:03:20,host01,svcAccount,4697,, "A new service was installed: MySvc"
+2026-03-28 12:04:40,host02,carol,1102,, "Audit log was cleared"
 
